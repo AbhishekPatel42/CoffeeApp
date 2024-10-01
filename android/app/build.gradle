@@ -1,0 +1,58 @@
+plugins {
+    id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.dbvertex.flutterapp"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.dbvertex.flutterapp"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        minSdkVersion 23
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+dependencies {
+    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+
+}
+
+//keytool -exportcert -alias androiddebugkey -keystore "C:\Users\Android\.android" | "C:\Users\Android\Downloads\openssl-0.9.8k_WIN32\bin\openssl" sha1 -binary | "C:\Users\Android\Downloads\openssl-0.9.8k_WIN32\bin\openssl" base64
+
+    //lyprVsr+Bpo7qcLvJ7RI8UqJBvo=
+//"C:\Program Files\Java\jdk-17\bin\keytool" -exportcert -alias androiddebugkey -keystore "C:\Users\Android\.android\debug.keystore" | "C:\Users\Android\Downloads\openssl-0.9.8k_WIN32\bin\openssl" sha1 -binary | "C:\Users\Android\Downloads\openssl-0.9.8k_WIN32\bin\openssl" base64
+//VzSiQcXRmi2kyjzcA+mYLEtbGVs=

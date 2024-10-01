@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177404402107",
+    "project_id": "coffeeapp-72d2c",
+    "storage_bucket": "coffeeapp-72d2c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177404402107:android:b9603aa275bae0fbc9cc9e",
+        "android_client_info": {
+          "package_name": "com.dbvertex.flutterapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCae-kNjcL0TOm4FSvCw4Pi3zRBRdutqac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
