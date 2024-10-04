@@ -49,6 +49,18 @@ class _FirebaseDataState extends State<FirebaseData> {
     }
   }
 
+  Future deleteImage(String documentId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("Images")
+          .doc(documentId)
+          .delete();
+      print("Document ${documentId}deleted successfuly.");
+    } catch (e) {
+      print("Erorr deleting $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +81,23 @@ class _FirebaseDataState extends State<FirebaseData> {
           if (snapshots.connectionState == ConnectionState.active) {
             if (snapshots.hasData) {
               return ListView.builder(
-                itemCount: snapshots.data!.docs.length,
-                itemBuilder: (context, index) {
-                  var doc = snapshots.data!.docs[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(doc["url"] ?? ''),
-                    ),
-                    title: Text(doc["title"] ?? ''),
-                    subtitle: Text(doc["description"] ?? ''),
-                  );
-                },
-              );
+                  itemCount: snapshots.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var doc = snapshots.data!.docs[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(doc["url"] ?? ''),
+                      ),
+                      title: Text(doc["title"] ?? ''),
+                      subtitle: Text(doc["description"] ?? ''),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          deleteImage(doc.id);
+                        },
+                      ),
+                    );
+                  });
             } else if (snapshots.hasError) {
               return Center(
                 child: Text("Error: ${snapshots.error}"),
@@ -101,4 +118,4 @@ class _FirebaseDataState extends State<FirebaseData> {
     );
   }
 }
-// git remote add origin https://github.com/AbhishekPatel42/CoffeeApp.git
+
