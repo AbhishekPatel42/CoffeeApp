@@ -1,20 +1,35 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_facebook_sdk/flutter_facebook_sdk.dart';
-
-import 'authPages/spalcescreen.dart';
+import 'authPages/spalcescreen.dart'; // Ensure this import is correct
+import 'helper/NotificationClass.dart'; // Ensure this import is correct
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  //FlutterFacebookSdk(). ;
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final NotificationClases notificationServices = NotificationClases();
+
+  @override
+  void initState() {
+    super.initState();
+    notificationServices.requestNotificationPermission();
+    notificationServices.getDiveceTocken().then((value) {
+      print("Divece Token");
+      print(value);
+    },);
+    notificationServices.isToken();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,3 +39,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

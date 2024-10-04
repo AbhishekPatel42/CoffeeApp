@@ -390,7 +390,7 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  final List<myListData> showFullData = [
+  final List< myListData> showFullData = [
     //  ShowData(reting: 3, sub: "Made by diluting espresso with hot water.", titel: "Black Coffee", price: 300,image: "https://static.vecteezy.com/system/resources/thumbnails/023/010/450/small/the-cup-of-latte-coffee-with-heart-shaped-latte-art-and-ai-generated-free-photo.jpg"),
     // ShowData(reting: 4, sub: "With Oa 1 Milk", titel: "Cappuccino", price: 240,image: "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
     // ShowData(reting: 4, sub: "With Oa 1 Milk", titel: "Latte", price: 240,image: "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
@@ -409,49 +409,49 @@ class _DetailPageState extends State<DetailPage> {
         price: 240,
         img:
             "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
-    myListData(
-        rating: 5,
-        sub: "With Oa 1 Milk",
-        title: "Latte",
-        price: 240,
-        img:
-            "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
-    myListData(
-        rating: 4,
-        sub: "With Oa 1 Milk",
-        title: "Latte",
-        price: 240,
-        img:
-            "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
-    myListData(
-        rating: 3,
-        sub: "With Oa 1 Milk",
-        title: "Cappuccino",
-        price: 240,
-        img:
-            "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
+    // myListData(
+    //     rating: 5,
+    //     sub: "With Oa 1 Milk",
+    //     title: "Latte",
+    //     price: 240,
+    //     img:
+    //         "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
+    // myListData(
+    //     rating: 4,
+    //     sub: "With Oa 1 Milk",
+    //     title: "Latte",
+    //     price: 240,
+    //     img:
+    //         "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
+    // myListData(
+    //     rating: 3,
+    //     sub: "With Oa 1 Milk",
+    //     title: "Cappuccino",
+    //     price: 240,
+    //     img:
+    //         "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
 
-    myListData(
-        rating: 3,
-        sub: "Made by hot water.",
-        title: "Black Coffee",
-        price: 300,
-        img:
-            "https://t4.ftcdn.net/jpg/04/00/52/13/360_F_400521390_uWn8KdMCXK9V5Gkp3dVGOAyKsqQok03V.jpg"),
-    myListData(
-        rating: 4,
-        sub: "With Oa 1 Milk",
-        title: "Latte",
-        price: 240,
-        img:
-            "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
-    myListData(
-        rating: 5,
-        sub: "With Oa 1 Milk",
-        title: "Cappuccino",
-        price: 240,
-        img:
-            "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
+    // myListData(
+    //     rating: 3,
+    //     sub: "Made by hot water.",
+    //     title: "Black Coffee",
+    //     price: 300,
+    //     img:
+    //         "https://t4.ftcdn.net/jpg/04/00/52/13/360_F_400521390_uWn8KdMCXK9V5Gkp3dVGOAyKsqQok03V.jpg"),
+    // myListData(
+    //     rating: 4,
+    //     sub: "With Oa 1 Milk",
+    //     title: "Latte",
+    //     price: 240,
+    //     img:
+    //         "https://static.vecteezy.com/system/resources/thumbnails/025/282/026/small/stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"),
+    // myListData(
+    //     rating: 5,
+    //     sub: "With Oa 1 Milk",
+    //     title: "Cappuccino",
+    //     price: 240,
+    //     img:
+    //         "https://t3.ftcdn.net/jpg/03/15/40/34/360_F_315403482_MVo1gSOOfvwCwhLZ9hfVSB4MZuQilNrx.jpg"),
   ];
 
   @override

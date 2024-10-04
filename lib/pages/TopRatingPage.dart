@@ -153,18 +153,18 @@ CoffeeList(
   );
 }
 
-// class ShowData{
-//   final int price;
-//   final String titel;
-//   final String image;
-//   final int reting;
-//   final String sub;
-//
-//    ShowData({
-//     required this.titel,
-//     required this.image,
-//     required this.reting,
-//     required this.price,
-//     required this.sub,
-// });
-// }
+class ShowData{
+  final int price;
+  final String titel;
+  final String image;
+  final int reting;
+  final String sub;
+
+   ShowData({
+    required this.titel,
+    required this.image,
+    required this.reting,
+    required this.price,
+    required this.sub,
+});
+}

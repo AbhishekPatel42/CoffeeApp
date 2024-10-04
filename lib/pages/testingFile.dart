@@ -46,21 +46,25 @@ class _FirebaseDataClassState extends State<FirebaseDataClass> {
       await ref.putFile(_image!);
       String downloadUrl = await ref.getDownloadURL();
 
+      // Parse price and rating to int or double
+      int price = int.tryParse(priceController.text) ?? 0;
+      int rating = int.tryParse(ratingController.text) ?? 0;
+
       await FirebaseFirestore.instance.collection("Images").add({
         'url': downloadUrl,
         'timestamp': FieldValue.serverTimestamp(),
-        'price': priceController.text,
-        'rating': ratingController.text,
+        'price': price,
+        'rating': rating,
         'description': descriptionController.text,
         'title': titleController.text,
       });
-
 
       print("Upload successful: $downloadUrl");
     } catch (e) {
       print("Error uploading image: $e");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

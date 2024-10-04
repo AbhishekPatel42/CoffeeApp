@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutterapp/utils/colors.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -14,7 +15,6 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
-
   bool _obscured = true;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
@@ -23,7 +23,7 @@ class _MyProfileState extends State<MyProfile> {
   TextEditingController NumberController = TextEditingController();
   TextEditingController PassController = TextEditingController();
 
-  bool isLoading = false;
+  bool isLoading = true; // Initially set to true for shimmer effect
   String? profilePhotoUrl;
 
   final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
@@ -33,13 +33,6 @@ class _MyProfileState extends State<MyProfile> {
   void initState() {
     super.initState();
     loadUserData();
-
-  }
-
-  void _toggleObscured() {
-    setState(() {
-      _obscured = !_obscured;
-    });
   }
 
   Future<void> loadUserData() async {
@@ -55,6 +48,7 @@ class _MyProfileState extends State<MyProfile> {
           EmailController.text = data['email'] ?? '';
           NumberController.text = data['phoneNumber'] ?? '';
           profilePhotoUrl = data['profilePhotoUrl'] ?? '';
+          isLoading = false; // Set to false after loading data
         });
       }
     }
@@ -134,7 +128,7 @@ class _MyProfileState extends State<MyProfile> {
       var snapshot = await storageRef.putFile(imageFile);
 
       // Get the download URL
-      String downloadUrl = await  snapshot.ref.getDownloadURL();
+      String downloadUrl = await snapshot.ref.getDownloadURL();
       setState(() {
         profilePhotoUrl = downloadUrl; // Update the profile photo URL
         isLoading = false;
@@ -147,7 +141,6 @@ class _MyProfileState extends State<MyProfile> {
       setState(() {
         isLoading = false;
       });
-      print("kjkj ${e} ${FirebaseAuth.instance.currentUser?.uid}");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to upload image $e')));
     }
   }
@@ -166,73 +159,131 @@ class _MyProfileState extends State<MyProfile> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04).copyWith(top: screenHeight * 0.09),
           child: SingleChildScrollView(
-            child: Form(
-              key: _formkey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Center(
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: NetworkImage(profilePhotoUrl ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 78),
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: pickImage,
-                            child: CircleAvatar(
-                              radius: 15,
-                              backgroundColor: Colors.white,
-                              child: Icon(Icons.edit, color: appColors.primary, size: 16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenHeight * 0.03),
-                  Center(
-                    child: Text(
-                      "My Account",
-                      style: TextStyle(fontSize: 24, color: appColors.primary),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.03),
-                  _buildTextFormField(NameController, "Enter your name", Icons.account_circle_rounded),
-                  SizedBox(height: screenHeight * 0.015),
-                  _buildTextFormField(EmailController, "Enter your email", Icons.email),
-                  SizedBox(height: screenHeight * 0.015),
-                  _buildTextFormField(NumberController, "Enter your mobile number", Icons.phone, keyboardType: TextInputType.number),
-                  SizedBox(height: screenHeight * 0.015),
-                  _buildPasswordField(),
-                  SizedBox(height: screenHeight * 0.03),
-                  Center(
-                    child: Container(
-                      height: screenHeight * 0.06,
-                      width: screenWidth * 0.5,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: appColors.primary,
-                      ),
-                      child: TextButton(
-                        onPressed: updateProfile,
-                        child: isLoading
-                            ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-                            : Text("SAVE CHANGES", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                ],
+            child: isLoading ? _buildShimmerEffect(screenHeight, screenWidth) : _buildProfileContent(screenHeight, screenWidth),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerEffect(double screenHeight, double screenWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[500]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: screenHeight * 0.3,
+              width: screenWidth * 0.3,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
               ),
             ),
           ),
         ),
-      ),
+        SizedBox(height: screenHeight * 0.03),
+        Shimmer.fromColors(
+          baseColor: Colors.grey[500]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 24,
+            width: screenWidth * 0.5,
+            color: Colors.white,
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.02),
+        ...List.generate(4, (index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[500]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 20,
+                width: screenWidth * 0.8,
+                color: Colors.white,
+              ),
+            ),
+          );
+        }),
+        SizedBox(height: screenHeight * 0.03),
+        Shimmer.fromColors(
+          baseColor: Colors.grey[500]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: screenHeight * 0.06,
+            width: screenWidth * 0.5,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileContent(double screenHeight, double screenWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(profilePhotoUrl ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 78),
+              child: Center(
+                child: GestureDetector(
+                  onTap: pickImage,
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.edit, color: appColors.primary, size: 16),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: screenHeight * 0.03),
+        Center(
+          child: Text(
+            "My Account",
+            style: TextStyle(fontSize: 24, color: appColors.primary),
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.03),
+        _buildTextFormField(NameController, "Enter your name", Icons.account_circle_rounded),
+        SizedBox(height: screenHeight * 0.015),
+        _buildTextFormField(EmailController, "Enter your email", Icons.email),
+        SizedBox(height: screenHeight * 0.015),
+        _buildTextFormField(NumberController, "Enter your mobile number", Icons.phone, keyboardType: TextInputType.number),
+        SizedBox(height: screenHeight * 0.015),
+        _buildPasswordField(),
+        SizedBox(height: screenHeight * 0.03),
+        Center(
+          child: Container(
+            height: screenHeight * 0.06,
+            width: screenWidth * 0.5,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: appColors.primary,
+            ),
+            child: TextButton(
+              onPressed: updateProfile,
+              child: isLoading
+                  ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                  : Text("SAVE CHANGES", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.02),
+      ],
     );
   }
 
@@ -288,5 +339,11 @@ class _MyProfileState extends State<MyProfile> {
         ),
       ),
     );
+  }
+
+  void _toggleObscured() {
+    setState(() {
+      _obscured = !_obscured;
+    });
   }
 }
