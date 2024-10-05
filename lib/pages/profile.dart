@@ -33,7 +33,30 @@ class _MyProfileState extends State<MyProfile> {
   void initState() {
     super.initState();
     loadUserData();
+    uploadNewImage(File('users'));
   }
+
+  Future<void> uploadNewImage(File imageFile) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Upload the image to Firebase Storage
+      Reference storageRef = FirebaseStorage.instance.ref().child('profile_photos/${user.uid}');
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      // Wait for the upload to complete
+      TaskSnapshot snapshot = await uploadTask;
+
+      // Get the download URL
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Update the Firestore document with the new image URL
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'profilePhotoUrl': downloadUrl,
+      });
+    }
+  }
+
 
   Future<void> loadUserData() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -151,13 +174,22 @@ class _MyProfileState extends State<MyProfile> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: AppBar(
+        leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.arrow_back_outlined)),
+        backgroundColor: appColors.secondry,
+        title: Text("Profile Page", style: TextStyle(color: Colors.white)),
+      ),
       backgroundColor: appColors.secondry,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
         },
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04).copyWith(top: screenHeight * 0.09),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04).copyWith(top: screenHeight * 0.04),
           child: SingleChildScrollView(
             child: isLoading ? _buildShimmerEffect(screenHeight, screenWidth) : _buildProfileContent(screenHeight, screenWidth),
           ),

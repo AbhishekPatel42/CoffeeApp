@@ -136,6 +136,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:flutterapp/pages/paymentSuccessfull.dart';
 import 'package:flutterapp/utils/colors.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../utils/dbHelper.dart';
@@ -236,6 +237,8 @@ class _CartPageState extends State<CartPage> {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Do something when payment succeeds
     response.paymentId;
+    //print("${paymentId}");
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>Paymentsuccessfull()));
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -264,6 +267,11 @@ class _CartPageState extends State<CartPage> {
     return Scaffold(
       backgroundColor: appColors.secondry,
       appBar: AppBar(
+        // leading: InkWell(
+        //     onTap: () {
+        //       Navigator.pop(context);
+        //     },
+        //     child: Icon(Icons.arrow_back_outlined)),
         backgroundColor: appColors.secondry,
         title: Text("My Cart", style: TextStyle(color: Colors.white)),
       ),

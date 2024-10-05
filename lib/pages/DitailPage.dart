@@ -526,8 +526,8 @@ class _DetailPageState extends State<DetailPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Item added to cart!')),
               );
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => CartPage()));
+              // Navigator.pushReplacement(
+              //     context, MaterialPageRoute(builder: (context) => CartPage()));
             }
           },
           child: Center(

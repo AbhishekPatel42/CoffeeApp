@@ -433,6 +433,7 @@ import 'package:flutterapp/pages/DitailPage.dart';
 import 'package:flutterapp/pages/profile.dart';
 import 'package:flutterapp/pages/testingFile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shimmer/shimmer.dart';
 import '../utils/colors.dart';
 import '../utils/compontes.dart';
 import 'TopRatingPage.dart';
@@ -456,24 +457,50 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    _fetchImageUrl();
+    loadUserData();
+    uploadNewImage(File('users'));
   }
 
-  Future<void> _fetchImageUrl() async {
-    try {
-      final ref = FirebaseStorage.instance.ref('path/to/your/image.jpg');
-      String url = await ref.getDownloadURL();
-      setState(() {
-        profilePhotoUrl = url;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error fetching image URL: $e');
-      setState(() {
-        isLoading = false;
+  Future<void> loadUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      DocumentSnapshot doc = await usersCollection.doc(user.uid).get();
+
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        setState(() {
+          // NameController.text = data['name'] ?? '';
+          // EmailController.text = data['email'] ?? '';
+          // NumberController.text = data['phoneNumber'] ?? '';
+          profilePhotoUrl = data['profilePhotoUrl'] ?? '';
+          isLoading = false; // Set to false after loading data
+        });
+      }
+    }
+  }
+
+  Future<void> uploadNewImage(File imageFile) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Upload the image to Firebase Storage
+      Reference storageRef = FirebaseStorage.instance.ref().child('profile_photos/${user.uid}');
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      // Wait for the upload to complete
+      TaskSnapshot snapshot = await uploadTask;
+
+      // Get the download URL
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Update the Firestore document with the new image URL
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'profilePhotoUrl': downloadUrl,
       });
     }
   }
+
   final List<String> myList = ['Black Coffee', 'Tea', 'Coffee'];
   final List<GridData> myGridData = [
     GridData(
@@ -584,10 +611,12 @@ class _HomepageState extends State<Homepage> {
             },
             child: Center(
               child: CircleAvatar(
-                backgroundImage: isLoading
-                    ? AssetImage("assets/loading_placeholder.png")
-                    : NetworkImage(profilePhotoUrl ??
-                        'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'),
+                //backgroundImage:
+                backgroundImage: NetworkImage(profilePhotoUrl ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'),
+                // isLoading
+                //     ? AssetImage("assets/loading_placeholder.png")
+                //     : NetworkImage(profilePhotoUrl ??
+                //         'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'),
               ),
             ),
           ),
@@ -678,8 +707,98 @@ class _HomepageState extends State<Homepage> {
   }
 }
 
+Widget shimmerLoadingCoffeeItem(double width, double height) {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[500]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: height * 0.7,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.grey[500],
+            ),
+          ),
+          SizedBox(height: 8),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 10,
+                  width: width * 0.6,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 4),
+                Container(
+                  height: 10,
+                  width: width * 0.4,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: 10,
+                      width: width * 0.3,
+                      color: Colors.grey[400],
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          height: 10,
+                          width: 10,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(width: 4),
+                        Container(
+                          height: 10,
+                          width: 10,
+                          color: Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
 Widget CoffeeListMain(
     List<GridData> gridData, double screenWidth, double screenHeight) {
+  if (gridData.isEmpty) {
+    return GridView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 4, // Number of shimmer loading placeholders
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisSpacing: screenWidth * 0.02,
+        mainAxisSpacing: screenWidth * 0.02,
+        crossAxisCount: 2,
+      ),
+      itemBuilder: (context, index) {
+        return shimmerLoadingCoffeeItem(screenWidth * 0.6, screenHeight * 0.15);
+      },
+    );
+  }
+
   return Container(
     child: GridView.builder(
       physics: NeverScrollableScrollPhysics(),
@@ -731,8 +850,7 @@ Widget CoffeeListMain(
                       ),
                     ),
                     Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -760,8 +878,7 @@ Widget CoffeeListMain(
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.star,
-                                      color: Colors.amber, size: 16),
+                                  Icon(Icons.star, color: Colors.amber, size: 16),
                                   Text(
                                     gridData[index].rating.toString(),
                                     style: TextStyle(color: Colors.white),
@@ -787,6 +904,7 @@ Widget CoffeeListMain(
 Widget specialForYou(
     List<myListData> myData, double screenWidth, double screenHeight) {
   return Container(
+    //color: Colors.tealAccent,
     child: StreamBuilder(
       stream: FirebaseFirestore.instance.collection("Images").snapshots(),
       builder: (context, snapshots) {
@@ -799,199 +917,139 @@ Widget specialForYou(
               itemCount: snapshots.data!.docs.length,
               itemBuilder: (context, index) {
                 var doc = snapshots.data!.docs[index];
-
-                return Column(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              tetile: doc["title"] ?? '' ,
-                              reting: doc["rating"] ?? 0.0,
-                              disc: doc["description"] ?? '',
-                              price: doc["price"] ?? 0,
-                              img: doc["url"] ?? '',
+                return Container(
+                 // color: Colors.amber,
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetailPage(
+                                tetile: doc["title"] ?? '',
+                                reting: doc["rating"] ?? 0.0,
+                                disc: doc["description"] ?? '',
+                                price: doc["price"] ?? 0,
+                                img: doc["url"] ?? '',
+                              ),
                             ),
+                          );
+                        },
+                        child: Container(
+                          height: screenHeight * 0.15,
+                          width: screenWidth * 0.9,
+                          margin: EdgeInsets.only(right: screenWidth * 0.01),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(18),
                           ),
-                        );
-                      },
-                      child: Container(
-                        height: screenHeight * 0.15,
-                        width: screenWidth * 0.8,
-                        margin: EdgeInsets.only(right: screenWidth * 0.01),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: appColors.primary,
-                                borderRadius: BorderRadius.circular(20),
-                                image: DecorationImage(
-                                  // image: NetworkImage(myData[index].img),
-                                  image: NetworkImage(doc["url"] ?? ''),
-                                  fit: BoxFit.cover,
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: appColors.primary,
+                                  borderRadius: BorderRadius.circular(20),
+                                  image: DecorationImage(
+                                    image: NetworkImage(doc["url"] ?? ''),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                height: screenHeight * 0.15,
+                                width: screenWidth * 0.345,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.02),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      doc["title"] ?? '',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 18),
+                                    ),
+                                    Text(
+
+                                      doc["description"] ?? '',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 11),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: screenHeight * 0.01),
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "₹${(doc["price"] ?? 0).toString()}",
+
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),SizedBox(
+                                          width: screenWidth*0.340,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.star,
+                                                color: Colors.amber, size: 16),
+                                            Text((doc["rating"] ?? 0).toString(),
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              height: screenHeight * 0.15,
-                              width: screenWidth * 0.345,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.02),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    doc["title"] ?? '',
-                                    // myData[index].title,
-
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  ),
-                                  Text(
-                                    // myData[index].sub,
-                                    doc["description"] ?? '',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 11),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: screenHeight * 0.01),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        // "₹${myData[index].price}",
-                                        (doc["price"] ?? 0).toString(),
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Icon(Icons.star,
-                                              color: Colors.amber, size: 16),
-                                          Text((doc["rating"] ?? 0).toString(),
-                                              style: TextStyle(
-                                                  color: Colors.white)),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 10), // Add space between items
-                  ],
+                      SizedBox(height: 10),
+                    ],
+                  ),
                 );
               },
             );
           }
         }
-        return Center(child: CircularProgressIndicator());
+
+        // Show shimmer effect when loading
+        return ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: 5, // Number of shimmer loading placeholders
+          itemBuilder: (context, index) {
+            return shimmerLoadingContainer(screenWidth * 0.8, screenHeight * 0.15);
+          },
+        );
       },
     ),
-    // ListView.builder(
-    //   physics: NeverScrollableScrollPhysics(),
-    //   shrinkWrap: true,
-    //   padding: EdgeInsets.only(top: 10.0),
-    //   itemCount: myData.length,
-    //   itemBuilder: (context, index) {
-    //     return Column(
-    //       children: [
-    //         InkWell(
-    //           onTap: () {
-    //             Navigator.push(
-    //               context,
-    //               MaterialPageRoute(
-    //                 builder: (context) => DetailPage(
-    //                   tetile: myData[index].title,
-    //                   reting: myData[index].rating,
-    //                   disc: myData[index].sub,
-    //                   price: myData[index].price,
-    //                   img: myData[index].img,
-    //                 ),
-    //               ),
-    //             );
-    //           },
-    //           child: Container(
-    //             height: screenHeight * 0.15,
-    //             width: screenWidth * 0.8,
-    //             margin: EdgeInsets.only(right: screenWidth * 0.01),
-    //             decoration: BoxDecoration(
-    //               color: Colors.grey[800],
-    //               borderRadius: BorderRadius.circular(18),
-    //             ),
-    //             child: Row(
-    //               children: [
-    //                 Container(
-    //                   decoration: BoxDecoration(
-    //                     color: appColors.primary,
-    //                     borderRadius: BorderRadius.circular(20),
-    //                     image: DecorationImage(
-    //                       image: NetworkImage(myData[index].img),
-    //                       fit: BoxFit.cover,
-    //                     ),
-    //                   ),
-    //                   height: screenHeight * 0.15,
-    //                   width: screenWidth * 0.345,
-    //                 ),
-    //                 Padding(
-    //                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-    //                   child: Column(
-    //                     crossAxisAlignment: CrossAxisAlignment.start,
-    //                     mainAxisAlignment: MainAxisAlignment.center,
-    //                     children: [
-    //                       Text(
-    //                         myData[index].title,
-    //                         style: TextStyle(color: Colors.white, fontSize: 18),
-    //                       ),
-    //                       Text(
-    //                         myData[index].sub,
-    //                         style: TextStyle(color: Colors.white, fontSize: 11),
-    //                         overflow: TextOverflow.ellipsis,
-    //                       ),
-    //                       SizedBox(height: screenHeight * 0.01),
-    //                       Row(
-    //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                         children: [
-    //                           Text(
-    //                             "₹${myData[index].price}",
-    //                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-    //                           ),
-    //                           Row(
-    //                             children: [
-    //                               Icon(Icons.star, color: Colors.amber, size: 16),
-    //                               Text("4.3", style: TextStyle(color: Colors.white)),
-    //                             ],
-    //                           ),
-    //                         ],
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         ),
-    //         SizedBox(height: 10), // Add space between items
-    //       ],
-    //     );
-    //   },
-    // ),
   );
 }
+
+
+Widget shimmerLoadingContainer(double width, double height) {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  );
+}
+
 
 class ItemCount extends StatefulWidget {
   const ItemCount({super.key});
@@ -1074,3 +1132,93 @@ class GridData {
     required this.img,
   });
 }
+
+
+// ListView.builder(
+//   physics: NeverScrollableScrollPhysics(),
+//   shrinkWrap: true,
+//   padding: EdgeInsets.only(top: 10.0),
+//   itemCount: myData.length,
+//   itemBuilder: (context, index) {
+//     return Column(
+//       children: [
+//         InkWell(
+//           onTap: () {
+//             Navigator.push(
+//               context,
+//               MaterialPageRoute(
+//                 builder: (context) => DetailPage(
+//                   tetile: myData[index].title,
+//                   reting: myData[index].rating,
+//                   disc: myData[index].sub,
+//                   price: myData[index].price,
+//                   img: myData[index].img,
+//                 ),
+//               ),
+//             );
+//           },
+//           child: Container(
+//             height: screenHeight * 0.15,
+//             width: screenWidth * 0.8,
+//             margin: EdgeInsets.only(right: screenWidth * 0.01),
+//             decoration: BoxDecoration(
+//               color: Colors.grey[800],
+//               borderRadius: BorderRadius.circular(18),
+//             ),
+//             child: Row(
+//               children: [
+//                 Container(
+//                   decoration: BoxDecoration(
+//                     color: appColors.primary,
+//                     borderRadius: BorderRadius.circular(20),
+//                     image: DecorationImage(
+//                       image: NetworkImage(myData[index].img),
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                   height: screenHeight * 0.15,
+//                   width: screenWidth * 0.345,
+//                 ),
+//                 Padding(
+//                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       Text(
+//                         myData[index].title,
+//                         style: TextStyle(color: Colors.white, fontSize: 18),
+//                       ),
+//                       Text(
+//                         myData[index].sub,
+//                         style: TextStyle(color: Colors.white, fontSize: 11),
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+//                       SizedBox(height: screenHeight * 0.01),
+//                       Row(
+//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                         children: [
+//                           Text(
+//                             "₹${myData[index].price}",
+//                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+//                           ),
+//                           Row(
+//                             children: [
+//                               Icon(Icons.star, color: Colors.amber, size: 16),
+//                               Text("4.3", style: TextStyle(color: Colors.white)),
+//                             ],
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         SizedBox(height: 10), // Add space between items
+//       ],
+//     );
+//   },
+// ),
