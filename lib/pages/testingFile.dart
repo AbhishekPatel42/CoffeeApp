@@ -80,13 +80,13 @@ class _FirebaseDataClassState extends State<FirebaseDataClass> {
                 height: 60,
                 child: Center(
                   child: CircleAvatar(
-                    radius: 100,
+                    radius: 200,
                     child: _image != null
                         ? ClipOval(
                       child: Image.file(
                         _image!.absolute,
                         width: 200,
-                        height: 200,
+                        height: 400,
                         fit: BoxFit.cover,
                       ),
                     )

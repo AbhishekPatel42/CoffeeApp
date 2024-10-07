@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
         Text(
-          user?.displayName ?? "User",
+          user?.displayName ?? "",
           style: TextStyle(fontSize: 23, color: Colors.white),
         ),
         SizedBox(height: screenHeight * 0.02),
